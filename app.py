@@ -1,6 +1,7 @@
 import os
 
 from dotenv import load_dotenv
+from fastapi import FastAPI, HTTPException
 from fastapi import FastAPI, HTTPException, Response
 from pydantic import BaseModel
 from pymongo import MongoClient
@@ -34,9 +35,20 @@ def get_device(name: str):
         raise HTTPException(status_code=404, detail="No device called " + name)
     return device
 
-@app.post("/devices", status_code=201)
+@app.post("/devices", status_code=201)   #task 3: create device
 def create_device(device: Device):
     if devices.find_one({"name": device.name}) is not None:
         raise HTTPException(status_code=409, detail="A device called " + device.name + " already exists")
     devices.insert_one(device.model_dump())
     return device.model_dump()
+
+
+@app.put("/devices/{name}")     #task 4: update device
+def put_device(name: str, device: Device, response: Response):
+    new_device = device.model_dump()
+    new_device["name"] = name
+    result = devices.replace_one({"name": name}, new_device, upsert=True)
+    if result.matched_count == 0:
+        response.status_code = 201
+    new_device.pop("_id", None)
+    return new_device
