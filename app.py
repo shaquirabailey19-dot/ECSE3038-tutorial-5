@@ -1,7 +1,7 @@
 import os
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Response
 from pydantic import BaseModel
 from pymongo import MongoClient
 
@@ -21,3 +21,7 @@ class Device(BaseModel):
 
 
 # Your handlers go below this line.
+
+@app.get("/devices")    #task 1
+def get_devices():
+    return list(devices.find({}, {"_id": 0}))
