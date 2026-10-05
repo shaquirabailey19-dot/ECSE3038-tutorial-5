@@ -52,3 +52,10 @@ def put_device(name: str, device: Device, response: Response):
         response.status_code = 201
     new_device.pop("_id", None)
     return new_device
+
+@app.delete("/devices/{name}")  #task 5: delete device
+def delete_device(name: str):
+    result = devices.delete_one({"name": name})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="No device called " + name)
+    return {"deleted": name}
